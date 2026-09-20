@@ -1,8 +1,9 @@
 // require('dotenv').config({path: './.env'})
 // under scripts -> "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js" -> if we want to use import dotenv instead of require(config)
 
-import dotenv from "dotenv"
-dotenv.config({ path: './.env' })
+// import dotenv from "dotenv"
+// dotenv.config({ path: './.env' })
+import { app } from "./app.js"
 
 import mongoose from "mongoose"
 import {DB_NAME} from "./constants.js"
