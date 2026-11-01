@@ -2,7 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js'
 import { User } from '../models/user.models.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js'
-import { ApiResonse } from '../utils/ApiResponse.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -47,7 +47,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
     if(
         [fullName, email, username, password].some((field) => 
-        field?.trim() === "")
+        !field || field.trim() === "")
     ){
         throw new ApiError(400, "All Fields are Required")
     }
@@ -101,7 +101,7 @@ const registerUser = asyncHandler( async (req, res) => {
     }
     // return response
     return res.status(201).json(
-        new ApiResonse(200, createdUser, "User Registered Successfully")
+        new ApiResponse(200, createdUser, "User Registered Successfully")
     )
 })
 
@@ -127,13 +127,13 @@ const loginUser = asyncHandler( async(req, res) => {
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password)
-    if (!!isPasswordValid) {
+    if (!isPasswordValid) {
         throw new ApiError(401, "Invalid User Credentials")
     }
 
     const { accessToken, refreshToken } =  await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = User.findById(user._id).select(" -password -refreshToken ")
+    const loggedInUser = await User.findById(user._id).select(" -password -refreshToken ")
 
     const options = {
         httpOnly: true,
@@ -144,7 +144,7 @@ const loginUser = asyncHandler( async(req, res) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-        new ApiResonse(
+        new ApiResponse(
             200,
             {
                 user: loggedInUser, accessToken, refreshToken
@@ -177,9 +177,9 @@ const logoutUser = asyncHandler( async(req, res) => {
 
     return res
     .status(200)
-    .clearCookies("accessToken", options)
-    .clearCookies("refreshToken", options)
-    .json(new ApiResonse(200, {}, "User Logged out successfully"))
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User Logged out successfully"))
 
 })
 
