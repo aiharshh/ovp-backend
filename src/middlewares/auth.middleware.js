@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import jwt from "jsonwebtoken"
 
 // it will verify if there exists a user or not
-export const verifyJWT = asyncHandler( async(requestAnimationFrame, resizeBy, next) => {
+export const verifyJWT = asyncHandler( async(req, _, next) => {
     try {
         const token = req.cookies?.accessToken || 
         req.header("Authorization")?.replace("Bearer ", "")
