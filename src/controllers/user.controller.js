@@ -164,8 +164,12 @@ const logoutUser = asyncHandler( async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            // $set: {
+            //     refreshToken: undefined
+            // }
+            // Or
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -347,7 +351,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler( async(req, res) => {
     const { username } = req.params
-    if(!username?.trim){
+    if(!username?.trim()){
         throw new ApiError(400, "Username is missing");
     }
 
@@ -460,9 +464,9 @@ const getWatchHistory = asyncHandler(async(req, res) =>{
     ])
 
     return res
-    .status
+    .status(200)
     .json(
-        new ApiResponse(200, user[0].getWatchHistory, "Watch History fetched successfully")
+        new ApiResponse(200, user[0]?.getWatchHistory || [], "Watch History fetched successfully")
     )
 })
 
