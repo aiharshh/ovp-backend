@@ -106,9 +106,43 @@ const getVideoById = asyncHandler( async(req, res)=> {
                     }
                 ]
             }
+        },
+        {
+            $addFields: {
+                likesCount: {
+                    $size: "$likes"
+                },
+                owner: {
+                    $first: "$owner",
+                },
+                isLiked: {
+                    $cond: {
+                        if: {
+                            $in: [req.user?._id, "$likes.likedBy"]
+                        },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
         }
     ]);
 
+    if(!video?.length){
+        throw new ApiError(404, "Video doesn't exists");
+    }
+
+    await Video.findByIdAndUpdate(videoId, {
+        $inc: {
+            views: 1
+        }
+    });
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, video[0], "Video fetched successfully")
+    )
 
 })
 

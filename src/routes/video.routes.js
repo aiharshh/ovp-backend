@@ -9,6 +9,8 @@ import {
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
 
+const router = Router();
+
 router.route("/").post(
     verifyJWT,
     upload.fields([
@@ -18,4 +20,6 @@ router.route("/").post(
     publishAVideo
 );
 
-router.route("/get-video").get(getVideoById);
+router.route("/:videoId").get(getVideoById);
+
+export default router;

@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import videoRouter from "./routes/video.routes.js"
 
 const app = express()
 
@@ -21,6 +22,6 @@ import userRouter from "./routes/user.routes.js"
 // routes declaration
 app.use("/api/v1/users", userRouter) 
 // http://localhost:8000/api/v1/users/register -> register is in user.routes.js 
-
+app.use("/api/v1/videos", videoRouter)
 
 export { app }
