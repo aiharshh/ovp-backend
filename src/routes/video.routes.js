@@ -3,6 +3,8 @@ import { Router } from "express"
 import { 
     publishAVideo,
     getVideoById,
+    updateVideo,
+    getAllVideos
 
 } from "../controllers/video.controller.js"
 
@@ -20,6 +22,9 @@ router.route("/").post(
     publishAVideo
 );
 
-router.route("/:videoId").get(getVideoById);
+router
+    .route("/:videoId")
+    .get(getVideoById)
+    .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
 
 export default router;

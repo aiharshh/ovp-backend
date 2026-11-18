@@ -7,6 +7,12 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
+const getAllVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+    //TODO: get all videos based on query, sort, pagination
+
+})
+
 const publishAVideo = asyncHandler( async(req, res)=> {
     // 1. Get title and description
     // 2. The title and description should not be empty
@@ -146,7 +152,58 @@ const getVideoById = asyncHandler( async(req, res)=> {
 
 })
 
+const updateVideo = asyncHandler( async(req, res)=> {
+    const { videoId } = req.params
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video Id");
+    }
+    //TODO: update video details like title, description, thumbnail
+    const { title, description } = req.body;
+    // 1. Extract videoId and title and desc from req.params and req.body
+    // 2. Validate videoId and title and description are present
+    // 3. upload to cloudinary our new thumbnail 
+    // 4. Clean old thumbnail
+    // 5. run the update Video.findByIdAndUpdate(videoId, {..})
+    // 6. return response status
+
+    if(!title){
+        throw new ApiError(400, "No title found");
+    }
+    if(!description){
+        throw new ApiError(400, "o Description found");
+    }
+
+    const thumbnailFileLocalPath = req.file?.path;
+
+    if (!thumbnailFileLocalPath) {
+        throw new ApiError(400, "Thumbnail is required");
+    }
+
+    const thumbnail = await uploadOnCloudinary(thumbnailFileLocalPath);
+    if (!thumbnail) {
+        throw new ApiError(400, "Thumbnail upload fail");
+    }
+
+    const updatedVideoDoc = await Video.findByIdAndUpdate( videoId, {
+        $set: {
+            title,
+            description,
+            thumbnail: thumbnail.url
+        }
+    },
+    { new: true }
+    );
+
+    return res
+        .status(201)
+        .json(
+            new ApiResponse(201, updatedVideoDoc, "Video details updated successfully")
+        );
+})
+
 export {
     publishAVideo,
     getVideoById,
+    getAllVideos,
+    updateVideo,
 }
