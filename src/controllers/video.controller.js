@@ -4,7 +4,7 @@ import { User } from "../models/user.models.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -201,9 +201,88 @@ const updateVideo = asyncHandler( async(req, res)=> {
         );
 })
 
+const deleteAVideo = asyncHandler( async(req, res)=> {
+    // 1. To delete we have to first fetch the video from the database
+    // 2. Get the video by findById
+    // 3. fetch the details of the videos and it's url in from monogoDb
+    // 4. Delete the video from cloudinary and set the url of videoFile to null
+    // 5. Delete the title and desceiption and all other details and write it to null
+    // 6. 
+
+    const { videoId } = req.params;
+    if (!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video Id");
+    }
+
+    const video = await Video.findById(videoId);
+    if(!video){
+        throw new ApiError(404, "Video not found");
+    }
+
+    if(video.owner.toString() !== req.user?._id.toString()){
+        throw new ApiError(403, "You do not have permissino to delete the video");
+    }
+
+    const videoPublicId = video.videoFile.split("/").pop().split(".")[0];
+    const thumbnailPublicId = video.thumbnail.split("/").pop().split(".")[0];
+
+    await deleteFromCloudinary(videoPublicId, "video")
+    await deleteFromCloudinary(thumbnailPublicId, "image")
+
+    await Video.findByIdAndDelete(videoId);
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,
+            {}, 
+            "Video deleted successfully"
+        )
+    );
+
+})
+
+const toggleVideoVisibility = asyncHandler( async(req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video Id");
+    }
+
+    const video = await Video.findById(videoId);
+    if(!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    if(video.owner.toString() !== req.user._id.toString()){
+        throw new ApiError(403, "You do not have permission to toggle the visibility");
+    }
+
+    // if(video.isPublished){
+    //     video.isPublished = false;
+    // }
+    // else{
+    //     video.isPublished = true;
+    // }
+    video.isPublished = !video.isPublished
+
+    await video.save(
+        { validateBeforeSave : false }
+    );
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, "Video Visibility Toggled")
+    )
+})
+
 export {
     publishAVideo,
     getVideoById,
     getAllVideos,
     updateVideo,
+    deleteAVideo,
+    toggleVideoVisibility
+
 }

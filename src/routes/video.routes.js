@@ -4,7 +4,9 @@ import {
     publishAVideo,
     getVideoById,
     updateVideo,
-    getAllVideos
+    getAllVideos,
+    deleteAVideo,
+    toggleVideoVisibility,
 
 } from "../controllers/video.controller.js"
 
@@ -25,6 +27,9 @@ router.route("/").post(
 router
     .route("/:videoId")
     .get(getVideoById)
-    .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
+    .patch(verifyJWT, upload.single("thumbnail"), updateVideo)
+    .delete(verifyJWT, deleteAVideo);
+
+router.route("/toggle/publish/:videoId").patch(verifyJWT, toggleVideoVisibility);
 
 export default router;
