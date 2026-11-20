@@ -10,7 +10,125 @@ import { upload } from "../middlewares/multer.middleware.js";
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
     //TODO: get all videos based on query, sort, pagination
+    // if the junior engineer does 
+    // const video = await Video.find(); -> Node.js will attempt to pull all 1,000,000 documents 
+    // into server RAM at once. The server CPU spikes to 100%, RAM runs out, and the backend crashes for every user.
+    // That is why Pagination is non - negotiable
 
+    const pipeline = [];
+    // If user searched for something, push a search stage!
+    // If user filtered by creator, push a creator stage!
+    // Push the owner details stage!
+    // Push the sort stage!
+
+    if(userId){
+        if (!isValidObjectId(userId)) {
+            throw new ApiError(404, "User not found");
+        }
+        pipeline.push(
+            {
+                $match: {
+                    owner: new mongoose.Types.ObjectId(userId)
+                }
+            }
+        )
+    }
+
+    if(query){
+        pipeline.push({
+            $match : {
+                $or: [
+                    {
+                        title: {
+                            $regex: query,
+                            $options: "i"
+                        }
+                    },
+                    {
+                        description: {
+                            $regex: query,
+                            $options: "i"
+                        }
+                    }
+                ]
+            }
+        })
+    }
+
+    pipeline.push({
+        $match: {
+            isPublished: true
+        }
+    });
+    pipeline.push({
+        $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+            pipeline: [
+                {
+                    $project: {
+                        fullName: 1,
+                        username: 1, 
+                        avatar: 1
+                    }
+                }
+            ]
+        },
+        // Remember: $lookup gives an array [ { ... } ]. 
+        // $first turns it into a clean single { ... } object!
+    });
+
+    pipeline.push({
+        $addFields: {
+            owner: {
+                $first: "$owner"
+            }
+        }
+    })
+
+    if (sortBy && sortType) {
+        pipeline.push({
+            $sort: {
+                [sortBy]: sortType === "asc" ? 1 : -1
+            }
+        });
+    }
+    else{
+        // Default: Newest Videos first (-1 means descending / newest)
+        pipeline.push({
+            $sort: {
+                createdAt: -1
+            }
+        });
+    }
+    const options = {
+        page: parseInt(page, 10),
+        // this converts the "1" from string to number 1 from req.query
+        limit: parseInt(limit, 10)
+        // converts string to number
+    }
+
+    const videos = await Video.aggregatePaginate(
+        Video.aggregate(pipeline),
+        // handover to suitcase
+        options // tells it which page and how many cards per page
+    )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, videos, "Videos fetched successfully")
+    )
+        // {
+        //   "docs": [ video1, video2, video3... ],   // The actual videos for this page
+        //   "totalDocs": 1000,                       // Total videos in the database
+        //   "totalPages": 100,                       // How many pages exist
+        //   "page": 1,                               // Current page
+        //   "hasNextPage": true,                     // Is there a next page?
+        //   "hasPrevPage": false                     // Is there a previous page?
+        // }
 })
 
 const publishAVideo = asyncHandler( async(req, res)=> {
