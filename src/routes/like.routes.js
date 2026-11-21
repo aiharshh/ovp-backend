@@ -10,10 +10,15 @@ const router = Router();
 // Apply verifyJWT to all routes in this file!
 router.use(verifyJWT);
 
-router.route("/v/:videoId")
-    .post(verifyJWT, toggleVideoLike)
+router.route("/toggle/v/:videoId")
+// .post(verifyJWT, toggleVideoLike) -> upgrade as it's added up there already
+    .post(toggleVideoLike)
 
-router.route("/c/:commentId")
+router.route("/toggle/c/:commentId")
     .post(toggleCommentLike)
+
+router.route("/toggle/t/:tweetId")
+    .post(toggleTweetLike)
+
 
 export default router;
