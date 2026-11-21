@@ -13,5 +13,7 @@ router.use(verifyJWT);
 router.route("/v/:videoId")
     .post(verifyJWT, toggleVideoLike)
 
+router.route("/c/:commentId")
+    .post(toggleCommentLike)
 
 export default router;
