@@ -7,6 +7,8 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+router.use(verifyJWT); // Must be logged in to comment!
 
+router.route("/:videoId").post(addComment);
 
 export default router;
