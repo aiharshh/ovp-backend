@@ -27,7 +27,26 @@ const addComment = asyncHandler(async (req, res) => {
         .json(new ApiResponse(201, comment, "Comment added successfully"));
 });
 
+const addTweetComment = asyncHandler(async (req, res) => {
+    const { tweetId } = req.params;
+    if (!isValidObjectId(tweetId)) {
+        throw new ApiError(400, "Invalid tweet ID");
+    }
+    const { content } = req.body;
+    if (!content?.trim()) {
+        throw new ApiError(400, "Comment content cannot be empty!");
+    }
+    
+    const comment = await Comment.create({
+        content,
+        tweet: tweetId,
+        owner: req.user._id
+    });
 
+    return res
+        .status(201)
+        .json(new ApiResponse(201, comment, "Comment added successfully"));
+});
 
 
 export {
