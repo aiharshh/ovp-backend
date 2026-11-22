@@ -67,7 +67,7 @@ const updateComment = asyncHandler( async(req, res) => {
     const comment = await Comment.findById(commentId);
 
     if(!comment){
-        throw new ApiError(403, "Comment not found");
+        throw new ApiError(404, "Comment not found");
     }
 
     if(comment.owner.toString() !== req.user?._id.toString()){
@@ -99,7 +99,7 @@ const deleteComment = asyncHandler(async(req, res) => {
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-        throw new ApiError(403, "Comment not found");
+        throw new ApiError(404, "Comment not found");
     }
 
     if(comment.owner.toString() !== req.user?._id.toString()){
@@ -116,7 +116,92 @@ const deleteComment = asyncHandler(async(req, res) => {
             comment,
             "Comment deleted successfully!")
     )
+})
 
+const getVideoComments = asyncHandler( async(req, res) => {
+    const { videoId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    // 1. We will fetch the video's details
+    // 2. We will fetch all the videos 
+    // 3. we will match all the user who commented on that video
+    // 4. Then we will lookup owner from users, owner, foreignField: _id, as owner of the comment
+    // 5. Then we will project fullname, avatar and name of user.
+    // 6. We will also fetch the comment's like
+    // 7. and finally addFields of likeCount
+    // 8. Now aggregatePaginate on it 
+
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Video not found")
+    }
+    const commentsAggregate = await Comment.aggregate([
+        // 1. Match comments for this video
+        {
+            $match: {
+                video: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        // 2. Lookup the commenter's profile
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            username: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        // 3. Lookup likes on each comment
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "comment",
+                as: "likes"
+            }
+        },
+        // 4. Flatten the owne and like count
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                },
+                likesCount: {
+                    $size: "$likes"
+                }
+            }
+        },
+        // 5. Newest comments first
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ]);
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+    }
+
+    const comments = await Comment.aggregatePaginate(commentsAggregate, options);
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            comments,
+            "Comments fetched successfully"
+        )
+    )
 })
 
 export {
