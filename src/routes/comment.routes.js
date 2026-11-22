@@ -14,8 +14,8 @@ router.use(verifyJWT); // Must be logged in to comment!
 router.route("/:videoId")
     .post(addComment)
 
-router.route("/:commentId")
+router.route("/c/:commentId")
     .patch(updateComment)
-    // .delete(deleteComment)
+
 
 export default router;

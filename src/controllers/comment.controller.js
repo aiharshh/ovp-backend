@@ -60,7 +60,15 @@ const updateComment = asyncHandler( async(req, res) => {
 
     const { content } = req.body;
 
+    if(!content?.trim()){
+        throw new ApiError(400, "Comment cannot be empty")
+    }
+
     const comment = await Comment.findById(commentId);
+
+    if(!comment){
+        throw new ApiError(403, "Comment not found");
+    }
 
     if(comment.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(403, "You are not authorized to update this comment");
@@ -82,9 +90,7 @@ const updateComment = asyncHandler( async(req, res) => {
     )
 })
 
-const deleteComment = asyncHandler(async(req, res) => {
-    
-})
+
 
 export {
     addComment,
