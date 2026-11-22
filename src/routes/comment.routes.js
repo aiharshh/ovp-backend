@@ -12,7 +12,8 @@ const router = Router();
 router.use(verifyJWT); // Must be logged in to comment!
 
 router.route("/:videoId")
-    .post(addComment)
+    .get(getVideoComments) // Public - anyone can read
+    .post(addComment) // must be logged in to post comments
 
 router.route("/c/:commentId")
     .patch(updateComment)
