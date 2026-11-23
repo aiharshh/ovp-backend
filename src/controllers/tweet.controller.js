@@ -37,7 +37,81 @@ const createTweet = asyncHandler(async(req, res)=>{
 
 })
 
+const getUserTweets = asyncHandler(async(req, res)=> {
+    // 1. Go to user's channel and tweets section - by fiding user's id
+    // 2. under there load all the tweets using $match
+    // 3. Lookup as userTweets - from user, localField owner, foreignField id, as userTweets
+    // 4. Project the fullName, username and avatar
+    // 5. then lookup likes on the tweet where from likes, localfield id, foreignfield tweet as likes
+    // 6. Put them in array as addFields as it returns array
+    // 7. count likes
+    // 8. sort by newest and return the response
+    const { userId } = req.params;
+    if(!isValidObjectId(userId)){
+        throw new ApiError(400, "Invalid User Id")
+    }
+
+    const tweets = await Tweet.aggregate([
+        {
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            fullName: 1,
+                            username: 1,
+                            avatar: 1 
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "tweet",
+                as: "likes"
+            }
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                },
+                likesCount: {
+                    $size: "$likes"
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            tweets,
+            "Tweets fetched successfully!"
+        )
+    )
+})
+
 
 export {
     createTweet,
+    getUserTweets,
 }
