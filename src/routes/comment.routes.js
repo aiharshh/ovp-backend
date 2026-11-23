@@ -9,10 +9,12 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+router.route("/:videoId")
+    .get(getVideoComments) // Public - anyone can read
+
 router.use(verifyJWT); // Must be logged in to comment!
 
 router.route("/:videoId")
-    .get(getVideoComments) // Public - anyone can read
     .post(addComment) // must be logged in to post comments
 
 router.route("/c/:commentId")
