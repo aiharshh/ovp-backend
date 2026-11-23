@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
     addComment,
     updateComment,
-    deleteComment
-
+    deleteComment,
+    getVideoComments
 } from "../controllers/comment.controller.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 

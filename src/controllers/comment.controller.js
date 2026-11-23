@@ -133,7 +133,7 @@ const getVideoComments = asyncHandler( async(req, res) => {
     if(!isValidObjectId(videoId)){
         throw new ApiError(400, "Video not found")
     }
-    const commentsAggregate = await Comment.aggregate([
+    const commentsAggregate = Comment.aggregate([
         // 1. Match comments for this video
         {
             $match: {
@@ -207,5 +207,6 @@ const getVideoComments = asyncHandler( async(req, res) => {
 export {
     addComment,
     updateComment,
-    deleteComment
+    deleteComment,
+    getVideoComments
 }
