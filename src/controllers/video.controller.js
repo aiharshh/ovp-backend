@@ -402,5 +402,4 @@ export {
     updateVideo,
     deleteAVideo,
     toggleVideoVisibility
-
 }
