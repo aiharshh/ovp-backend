@@ -18,7 +18,8 @@ router.use(verifyJWT);
 router.route("/").post(createPlayList);
 
 router.route("/add/:videoId/:playlistId")
-    .patch(addVideoToPlaylist);
+    .patch(addVideoToPlaylist)
+    .patch(removeVideoFromPlaylist);
 
 
 export default router;
