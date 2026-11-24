@@ -35,7 +35,7 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/tweets", tweetRouter)
 app.use("/api/v1/playlists", playlistRouter)
 app.use("/api/v1/healthcheck", healthcheckRouter)
-app.use("/api/v1/dashboardRouter", dashboardRouter)
+app.use("/api/v1/dashboard", dashboardRouter)
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
