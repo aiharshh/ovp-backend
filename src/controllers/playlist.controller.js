@@ -234,6 +234,48 @@ const deletePlaylist = asyncHandler( async( req, res) => {
     )
 })
 
+const updatePlaylist = asyncHandler( async(req, res) => {
+    const { playlistId } = req.params;
+    if(!isValidObjectId(playlistId)){
+        throw new ApiError(400, "Playlist id not found");
+    }
+    const { name, description } = req.body;
+    if(!name.trim() || description.trim()){
+        throw new ApiError(400, "Field cannot be empty")
+    }
+    const playlist = Playlist.findById(playlistId);
+
+    if(!playlist){
+        throw new ApiError(400, "Playlist not found")
+    }
+    if(playlist.owner.toString() !== req.user?._id.toString()){
+        throw new ApiError(403, "You aren't authorized to update playlist")
+    }
+
+    const updatedPlaylistDetails = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            $set: {
+                name: name.trim(),
+                description: description.trim()
+            }
+        },
+        { new: true }
+    )
+
+    await playlist.save();
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            updatePlaylist,
+            "Playlist updated successfully"
+        )
+    )
+
+})
 export {
     createPlayList,
     getUserPlaylists,
@@ -241,5 +283,5 @@ export {
     getPlaylistById,
     removeVideoFromPlaylist,
     deletePlaylist,
-
+    updatePlaylist
 }
