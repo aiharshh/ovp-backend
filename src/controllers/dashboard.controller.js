@@ -76,7 +76,7 @@ const getChannelStats = asyncHandler( async(req, res) => {
 })
 
 const getChannelVideos = asyncHandler( async(req, res) => {
-    const video = await Video.find({
+    const videos = await Video.find({
         owner: req.user?._id
     })
     .sort({
