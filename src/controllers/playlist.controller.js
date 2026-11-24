@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { Playlist } from "../models/playlist.models.js"
+import { Video } from "../models/video.models.js"
 
 const createPlayList = asyncHandler( async(req, res) => {
     
@@ -169,6 +170,39 @@ const addVideoToPlaylist = asyncHandler( async(req, res) => {
             "Playlist updated successfully!"
         )
     )
+})
+
+const removeVideoFromPlaylist = asyncHandler( async(req, res) => {
+    const { videoId, playlistId } = req.params;
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Playlist doesn't exists")
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+
+    if (playlist.owner.toString() !== req.user?._id.toString()) {
+        throw new ApiError(403, "You are not authorised")
+    }
+    // add to set to maintain atomicity which is done by $pull
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            $pull: {
+                videos: videoId
+            }
+        },
+        { new: true }
+    );
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                updatedPlaylist,
+                "Playlist updated successfully!"
+            )
+        )
 })
 
 export {
