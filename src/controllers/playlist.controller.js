@@ -136,7 +136,40 @@ const getPlaylistById = asyncHandler( async(req, res) => {
     )
 })
 
+const addVideoToPlaylist = asyncHandler( async(req, res) => {
+    const { playlistId, videoId } = req.params;
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)){
+        throw new ApiError(400, "Playlist doesn't exists")
+    }
 
+    const playlist = await Playlist.findById(playlistId);
+    if(!playlist){
+        throw new ApiError(400, "Playlist not found");
+    }
+    if(playlist.owner.toString() !== req.user?._id.toString()){
+        throw new ApiError(403, "You are not authorised")
+    }
+    // add to set to maintain atomicity which is done by $addToSet
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {
+            $addToSet: {
+                videos: videoId
+            }
+        },
+        { new: true }
+    );
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            updatedPlaylist,
+            "Playlist updated successfully!"
+        )
+    )
+})
 
 export {
     createPlayList,
