@@ -7,7 +7,6 @@ import { Subscription } from "../models/subscription.models.js";
 import { Like } from "../models/like.models.js";
 
 const getChannelStats = asyncHandler( async(req, res) => {
-    const user = req.user?._id;
     if(!req.user?._id){
         throw new ApiError(400, "User not found")
     }
