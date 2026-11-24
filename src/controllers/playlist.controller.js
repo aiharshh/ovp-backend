@@ -240,7 +240,7 @@ const updatePlaylist = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Playlist id not found");
     }
     const { name, description } = req.body;
-    if(!name?.trim() || description?.trim()){
+    if(!name?.trim() || !description?.trim()){
         throw new ApiError(400, "Field cannot be empty")
     }
     const playlist = await Playlist.findById(playlistId);
