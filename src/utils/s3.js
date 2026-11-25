@@ -7,7 +7,7 @@ import path from "path";
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || "ap-south-1",
     credentials: {
-        accessKeyId: process.env.AWS_ACCESSKEYID || "",
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESSKEYID || "",
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
     }
 });
@@ -80,3 +80,6 @@ const deleteFromS3 = async(fileKey) => {
 };
 
 export { uploadOnS3, deleteFromS3}
+
+//Node.js ──► 1. Raw S3 Bucket ──(S3 Event)──► 2.AWS Lambda / FFmpeg──►
+//      3.Processed S3 Bucket ──► 4. CloudFront CDN
