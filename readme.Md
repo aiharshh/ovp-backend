@@ -1,6 +1,6 @@
-# 🎬 YouTube Clone Backend API
+# 🎬 TwiTube: Online Video Platform (OVP) & Microblogging Engine
 
-A production-grade, highly scalable backend engine for a video sharing platform built with **Node.js, Express.js, MongoDB, and Cloudinary**. Engineered from first principles with industry best practices, including JWT authentication with refresh token rotation, multi-stage MongoDB aggregation pipelines, database indexing, rate limiting, and centralized error handling.
+A production-grade, highly scalable backend engine for **TwiTube** — a hybrid platform merging high-throughput **Online Video Streaming (OVP)** with real-time **Social Microblogging (Twitter-style feeds)**. Built from first principles using **Node.js, Express.js, MongoDB, and Cloudinary**, engineered with enterprise security, dual-token JWT authentication, multi-stage aggregation pipelines, database indexing, rate limiting, and centralized error handling.
 
 > 📐 **Data Model Architecture:** [Eraser.io Database Diagram](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
 

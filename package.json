@@ -1,16 +1,22 @@
 {
-  "name": "backend",
+  "name": "twitube-ovp-backend",
   "version": "1.0.0",
-  "description": "A youtube robust backend",
+  "description": "TwiTube: Production-grade Online Video Platform (OVP) and Microblogging Backend Engine",
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node -r dotenv/config --experimental-json-modules src/index.js",
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
     "javascript",
     "backend",
-    "youtube"
+    "ovp",
+    "video-platform",
+    "microblogging",
+    "twitube",
+    "express",
+    "mongodb"
   ],
   "author": "Harsh Hublikar",
   "license": "ISC",
@@ -19,6 +25,7 @@
     "prettier": "^3.9.6"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1177.0",
     "axios": "^1.21.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.11.0",
