@@ -4,7 +4,7 @@ import { User } from "../models/user.models.js"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteFile, uploadFile } from "../utils/cloudinary.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -157,8 +157,8 @@ const publishAVideo = asyncHandler( async(req, res)=> {
         throw new ApiError(400, "Thumbnail is required");
     }
 
-    const videoFile = await uploadOnCloudinary(videoFileLocalPath);
-    const thumbnail = await uploadOnCloudinary(thumbnailFileLocalPath);
+    const videoFile = await uploadFile(videoFileLocalPath);
+    const thumbnail = await uploadFile(thumbnailFileLocalPath);
 
     if(!videoFile){
         throw new ApiError(400, "Video upload failed");
@@ -297,7 +297,7 @@ const updateVideo = asyncHandler( async(req, res)=> {
         throw new ApiError(400, "Thumbnail is required");
     }
 
-    const thumbnail = await uploadOnCloudinary(thumbnailFileLocalPath);
+    const thumbnail = await uploadFile(thumbnailFileLocalPath);
     if (!thumbnail) {
         throw new ApiError(400, "Thumbnail upload fail");
     }
@@ -344,8 +344,8 @@ const deleteAVideo = asyncHandler( async(req, res)=> {
     const videoPublicId = video.videoFile.split("/").pop().split(".")[0];
     const thumbnailPublicId = video.thumbnail.split("/").pop().split(".")[0];
 
-    await deleteFromCloudinary(videoPublicId, "video")
-    await deleteFromCloudinary(thumbnailPublicId, "image")
+    await deleteFile(videoPublicId, "video")
+    await deleteFile(thumbnailPublicId, "image")
 
     await Video.findByIdAndDelete(videoId);
 
