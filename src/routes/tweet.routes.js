@@ -18,7 +18,7 @@ router.use(verifyJWT);
 router.route("/").post(createTweet);
 
 router.route("/:tweetId")
-    .post(deleteTweet)
+    .delete(deleteTweet)
     .patch(updateTweet)
 
 
