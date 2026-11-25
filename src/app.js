@@ -21,6 +21,12 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+app.set("trust proxy", 1);
+import healthcheckRouter from "./routes/healthcheck.routes.js"
+
+// Mount healthcheck BEFORE rate limiter so cloud uptime pings are never blocked with 429
+app.use("/api/v1/healthcheck", healthcheckRouter)
+
 // 3. General rate limiter for all API roues
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes 
@@ -50,7 +56,6 @@ import likeRouter from "./routes/like.routes.js"
 import commentRouter from "./routes/comment.routes.js"
 import tweetRouter from "./routes/tweet.routes.js"
 import playlistRouter from "./routes/playlist.routes.js"
-import healthcheckRouter from "./routes/healthcheck.routes.js"
 import dashboardRouter from "./routes/dashboard.routes.js"
 
 //5.  routes declaration
@@ -62,7 +67,6 @@ app.use("/api/v1/likes", likeRouter)
 app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/tweets", tweetRouter)
 app.use("/api/v1/playlists", playlistRouter)
-app.use("/api/v1/healthcheck", healthcheckRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
 
 // 6. Global Error Handling Middleware - always at end

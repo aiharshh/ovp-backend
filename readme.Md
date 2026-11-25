@@ -1,4 +1,5 @@
 # 🎬 TwiTube: Online Video Platform (OVP) & Microblogging Engine
+[Link](https://twitube-backend-0o2g.onrender.com/api/v1)
 
 A production-grade, highly scalable backend engine for **TwiTube** — a hybrid platform merging high-throughput **Online Video Streaming (OVP)** with real-time **Social Microblogging (Twitter-style feeds)**. Built from first principles using **Node.js, Express.js, MongoDB, and Cloudinary**, engineered with enterprise security, dual-token JWT authentication, multi-stage aggregation pipelines, database indexing, rate limiting, and centralized error handling.
 
@@ -78,7 +79,8 @@ src/
 
 ## 📡 API Reference
 
-Base URL: `http://localhost:8000/api/v1`
+- **🌐 Live Production URL:** `https://twitube-backend-0o2g.onrender.com/api/v1`
+- **💻 Local Development URL:** `http://localhost:8000/api/v1`
 
 ### 1. Healthcheck
 | Method | Endpoint | Access | Description |
